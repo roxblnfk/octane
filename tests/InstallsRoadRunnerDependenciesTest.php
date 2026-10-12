@@ -26,12 +26,21 @@ class InstallsRoadRunnerDependenciesTest extends TestCase
         ];
     }
 
+    public function test_roadrunner_packages_allow_both_roadrunner_stacks()
+    {
+        $this->assertSame([
+            'spiral/roadrunner-http:^3.3.0 || ^4.2',
+            'spiral/roadrunner-cli:^2.6.0 || ^3.0',
+        ], $this->installer()->roadRunnerPackages());
+    }
+
     protected function installer()
     {
         return new class
         {
             use InstallsRoadRunnerDependencies {
                 roadRunnerVersionIsSupported as public;
+                roadRunnerPackages as public;
             }
         };
     }

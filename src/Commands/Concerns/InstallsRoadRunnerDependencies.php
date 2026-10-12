@@ -46,13 +46,15 @@ trait InstallsRoadRunnerDependencies
             return true;
         }
 
-        if (! confirm('Octane requires "spiral/roadrunner-http:^3.3.0" and "spiral/roadrunner-cli:^2.6.0". Do you wish to install them as a dependencies?')) {
+        $packages = $this->roadRunnerPackages();
+
+        if (! confirm('Octane requires "'.implode('" and "', $packages).'". Do you wish to install them as a dependencies?')) {
             $this->components->error('Octane requires "spiral/roadrunner-http" and "spiral/roadrunner-cli".');
 
             return false;
         }
 
-        $command = $this->findComposer().' require spiral/roadrunner-http:^3.3.0 spiral/roadrunner-cli:^2.6.0 --with-all-dependencies';
+        $command = $this->findComposer().' require "'.implode('" "', $packages).'" --with-all-dependencies';
 
         $process = Process::fromShellCommandline($command, null, null, null, null);
 
@@ -75,6 +77,21 @@ trait InstallsRoadRunnerDependencies
         }
 
         return true;
+    }
+
+    /**
+     * Get the RoadRunner package requirements that should be installed.
+     *
+     * @return array<int, string>
+     */
+    protected function roadRunnerPackages(): array
+    {
+        // The upper ranges pull the RoadRunner 3 stack; Composer falls back to the
+        // RoadRunner 2025 stack where it cannot be installed, such as on PHP 8.1.
+        return [
+            'spiral/roadrunner-http:^3.3.0 || ^4.2',
+            'spiral/roadrunner-cli:^2.6.0 || ^3.0',
+        ];
     }
 
     /**
