@@ -133,7 +133,7 @@ trait InstallsRoadRunnerDependencies
 
         $version = explode(' ', $version)[2];
 
-        if (version_compare($version, $this->requiredRoadRunnerVersion, '>=')) {
+        if ($this->roadRunnerVersionIsSupported($version)) {
             return;
         }
 
@@ -154,6 +154,20 @@ trait InstallsRoadRunnerDependencies
 
             unlink("$roadRunnerBinary.backup");
         }
+    }
+
+    /**
+     * Determine if the given RoadRunner binary version is supported.
+     */
+    protected function roadRunnerVersionIsSupported(string $version): bool
+    {
+        // RoadRunner went from calendar versions (2023.x - 2025.x) back to semver with 3.0.0,
+        // so 3.x compares lower than every supported calendar release.
+        if (version_compare($version, '2000.0.0', '>=')) {
+            return version_compare($version, $this->requiredRoadRunnerVersion, '>=');
+        }
+
+        return version_compare($version, '3.0.0', '>=');
     }
 
     /**
